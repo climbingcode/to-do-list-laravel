@@ -1,4 +1,5 @@
 var elixir = require('laravel-elixir');
+require('laravel-elixir-livereload');
 
 /*
  |--------------------------------------------------------------------------
@@ -12,6 +13,7 @@ var elixir = require('laravel-elixir');
  */
 
 elixir(function(mix) {
+	mix.livereload();
     mix.less('app.less')
     .scripts([
     	"rest-adapter.js",

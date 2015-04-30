@@ -5,10 +5,19 @@ use todolist\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use todolist\Todolist;
+use Response;
 
 use todolist\Http\Requests\ListFormRequest;
 
+use Auth;
+
 class ListController extends Controller {
+
+
+	public function __contruct() 
+	{
+		$this->middleware('auth');
+	}
 
 	/**
 	 * Display a listing of the resource.
@@ -40,14 +49,16 @@ class ListController extends Controller {
 	public function store(ListFormRequest $request)
 	{
 
+		$currentUser = Auth::user();
+
 		$list = new Todolist(array(
 			'name' => $request->get('name'),
 			'description' => $request->get('description')
 		));
 
-		$list->save();
+		$currentUser->lists()->save($list);
 
-		return \Redirect::route('lists.index')->with('message', 'You new list item has been added!!!');
+		return \Redirect::route('lists.index')->with('message', ['You new list item has been added!!!']);
 	}
 
 	/**
@@ -103,6 +114,14 @@ class ListController extends Controller {
 	{
 		Todolist::destroy($id);
 		return \Redirect::route('lists.index')->with('message', 'list item has been deleted');
+	}
+
+
+	public function current_user_lists() 
+	{
+		$currentUser = Auth::user();
+		$lists = $currentUser->lists;
+		return Response::json(["lists" => $lists, 'response' => 200]);
 	}
 
 }

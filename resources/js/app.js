@@ -55,6 +55,16 @@ $(document).ready(function() {
 		
 		});
 
+		//SHOW ONLY USERS TASKS
+		$('#usersLists').on('click', function() {
+
+			var url = window.location.origin + '/dev.todoparrot.com/public/current_user_lists';
+
+			RestAdapter.index(url).then(function(response) {
+				onlyShowCurrentUserLists(response.lists);
+			});
+		});
+
 
 		//sortable
 		sortableList('/dev.todoparrot.com/public/sort-tasks');
@@ -91,7 +101,7 @@ $(document).ready(function() {
 		
 		$('#sortable').prepend('<li class="task-item">'
 		+	'<div class="row">'
-		+		'<span class="col-xs-1 glyphicon glyphicon-sort"></span>'
+		+		'<span class="col-xs-1 glyphicon glyphicon-sort" data-taskId="' + task.id + '""></span>'
 		+		'<h5 class="col-xs-4 ">' + task.name + '</h5>'		
 		+		'<button class="remove-task col-xs-1 glyphicon glyphicon-remove" data-taskid=' + task.id + '></button>'
 		+		'<div class="completed-task-switch col-xs-6" data-taskid=' +  task.id +'>'
@@ -170,7 +180,25 @@ $(document).ready(function() {
 
 			}
 		}).disableSelection();
+	}
 
+	var isOnlyCurrentUserLists = false;
+
+	function onlyShowCurrentUserLists(userLists) {
+		if (!isOnlyCurrentUserLists) {
+			$('#listItems li').hide();
+			for (var i = 0; i < userLists.length; i++) {
+				var list = userLists[i];
+				var match = $('#listItems').find('[data-listId="' + list.id + '"]');
+				if (match) { match.show(); }
+				isOnlyCurrentUserLists = true;
+				$('#usersLists').text('Show all list items');
+			}
+		} else {
+			$('#usersLists').text('Show my Lists Items Only');
+			$('#listItems li').show();
+			isOnlyCurrentUserLists = false;
+		}
 	}
 
 

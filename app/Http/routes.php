@@ -11,26 +11,8 @@
 |
 */
 
-Route::get('/', 'WelcomeController@index');
-
-Route::get('home', 'HomeController@index');
-
-Route::get('/about', 'AboutController@index');
-
-Route::get('contact', ['as' => 'contact', 'uses' => 'AboutController@create']);
-
-Route::post('contact', ['as' => 'contact_store', 'uses' => 'AboutController@store']);
-
-Route::resource('lists', 'ListController');
-
-Route::resource('tasks', 'TaskController');
 
 Route::resource('registration', 'RegistrationController');
-
-Route::patch('/sort-tasks', array(
-	'as' => 'tasks.sort',
-	'uses' => 'TaskController@sortTask'
-));
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',
@@ -42,7 +24,38 @@ Route::get('register/verify/{confirmationCode}', [
     'uses' => 'RegistrationController@confirm'
 ]);
 
+Route::get('/', ['as' => 'root', 'uses' => 'WelcomeController@index']);
+
+Route::get('home', 'HomeController@index');
+
+Route::get('/about', 'AboutController@index');
+
+Route::get('contact', ['as' => 'contact', 'uses' => 'AboutController@create']);
+
+Route::post('contact', ['as' => 'contact_store', 'uses' => 'AboutController@store']);
+
 Route::filter('auth', function() {
 	if (Auth::guest()) return Redirect::guest(URL::route('/sign-out'));
 });
+
+$router->group(['middleware' => 'auth'], function() {
+	
+	Route::resource('lists', 'ListController');
+
+	Route::get('/current_user_lists', ['as' => 'current_user_lists', 'uses' => 'ListController@current_user_lists']);
+
+	Route::resource('tasks', 'TaskController');
+
+	Route::resource('session', 'SessionController', array('except' => array('create', 'edit', 'update', 'show', 'index')));
+
+	Route::patch('/sort-tasks', array(
+		'as' => 'tasks.sort',
+		'uses' => 'TaskController@sortTask'
+	));
+
+});
+
+
+
+
 

@@ -10,9 +10,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
 	use Authenticatable, CanResetPassword;
 
-	public function profile() 
+	public function lists() 
 	{
-		return $this->hasOne('todolist\Profile');
+		return $this->hasMany('todolist\Todolist');
 	}
 
 	/**
@@ -41,7 +41,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['name', 'email', 'password'];
+	protected $fillable = ['name', 'email', 'password', 'confirmation_code'];
 
 	/**
 	 * The attributes excluded from the model's JSON form.

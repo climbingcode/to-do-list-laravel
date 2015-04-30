@@ -13,6 +13,11 @@ class Todolist extends Model {
 		return $this->hasMany('todolist\Task')->orderBy('order');
 	}
 
+	public function user() 
+	{
+		return $this->belongsTo('todolist\User');
+	}
+
 	public function categories() 
 	{
 		return $this->belongsToMany('todolists\Category')->withTimestamps();

@@ -20,26 +20,6 @@ use todolist\Http\Requests\RegistrationFormRequest;
 class RegistrationController extends Controller {
 
 	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
-		//
-	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-		//
-	}
-
-	/**
 	 * Store a newly created resource in storage.
 	 *
 	 * @return Response
@@ -50,65 +30,43 @@ class RegistrationController extends Controller {
 
 		$confirmation_code = str_random(30);
 
-		User::create([
+		$user = new User([
 			'name' => $request->get('name'),
             'email' => $request->get('email'),
             'password' => Hash::make($request->get('password')),
             'confirmation_code' => $confirmation_code
 		]);
 
+		$user->save();
+
 		Mail::send('emails.verify',['confirmation_code' => $confirmation_code], function($message) {
 			$message->to(Input::get('email'), Input::get('name'))
 			->subject('verify your email!');
 		});
 
-		\Session::flash('flash_message', 'Thanks for signing up, please check your email for further instructions.');
-
-		return \Redirect::route('WelcomeController@index');
+		return \Redirect::route('root')->with('messages', 'Thanks for signing up, please check your email for further instructions.');
 	}
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
+	public function confirm($confirmation_code) 
 	{
-		//
-	}
 
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		//
-	}
+		$user = User::whereConfirmationCode($confirmation_code)->first();
+		
+		if(!$confirmation_code) 
+		{
+			\Session::flash('message', 'this confirmation code does not exist');
+		} elseif (!$user) 
+		{
+			\Session::flash('message', 'Sorry we could not find this record');
+		} else 
+		{
+			$user->confirmation = 1;
+			$user->confirmation_code = null;
+			$user->save();
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id)
-	{
-		//
-	}
+			return \Redirect::route('root');
+		}
 
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy($id)
-	{
-		//
 	}
 
 }
